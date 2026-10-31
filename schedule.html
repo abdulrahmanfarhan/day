@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>جدولي الأسبوعي</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #eef2f6;
+    --surface: #ffffff;
+    --ink: #14213d;
+    --muted: #5b6b82;
+    --line: #d6dee8;
+    --today: #14213d;
+
+    --work: #b7791f;   --work-bg: #fff4dc;
+    --uni: #2b6cb0;    --uni-bg: #e3efff;
+    --study: #0f8a7a;  --study-bg: #dcf6f1;
+    --rest: #6b7a90;   --rest-bg: #eceff3;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e1522;
+      --surface: #16202f;
+      --ink: #e8eef7;
+      --muted: #9aabc2;
+      --line: #263449;
+      --today: #7fb4ff;
+
+      --work: #f0b24a;   --work-bg: #2b2414;
+      --uni: #6fb0ff;    --uni-bg: #15263d;
+      --study: #4fd1bd;  --study-bg: #12302e;
+      --rest: #9aabc2;   --rest-bg: #1c2636;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    padding: clamp(14px, 3vw, 32px);
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'IBM Plex Sans Arabic', 'Segoe UI', Tahoma, 'Noto Sans Arabic', sans-serif;
+    line-height: 1.7;
+  }
+  main { max-width: 1000px; margin-inline: auto; }
+
+  header { margin-block-end: 20px; }
+  h1 { margin: 0; font-size: clamp(1.5rem, 4vw, 2rem); font-weight: 700; }
+  header p { margin: 4px 0 0; color: var(--muted); }
+
+  .legend {
+    display: flex; flex-wrap: wrap; gap: 8px 18px;
+    margin: 14px 0 0; padding: 0; list-style: none;
+    font-size: .9rem; color: var(--muted);
+  }
+  .legend li { display: flex; align-items: center; gap: 6px; }
+  .legend i { width: 12px; height: 12px; border-radius: 3px; display: block; }
+
+  .week { display: grid; gap: 12px; }
+
+  .day {
+    display: grid;
+    grid-template-columns: 6.5rem 1fr;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .day h2 {
+    margin: 0; padding: 16px 14px;
+    font-size: 1.1rem; font-weight: 700;
+    border-inline-end: 1px solid var(--line);
+    display: flex; flex-direction: column; gap: 6px; align-items: flex-start;
+  }
+  .badge {
+    font-size: .75rem; font-weight: 500;
+    background: var(--today); color: var(--bg);
+    padding: 0 8px; border-radius: 99px; line-height: 1.6;
+  }
+  .day.today { border-color: var(--today); box-shadow: 0 0 0 1px var(--today); }
+  .day:not(.today) .badge { display: none; }
+
+  .events { display: flex; flex-wrap: wrap; gap: 8px; padding: 10px; }
+  .ev {
+    flex: 1 1 200px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border-inline-start: 4px solid var(--c);
+    background: var(--bg-c);
+  }
+  .ev .t { display: block; font-size: .85rem; color: var(--muted); }
+  .ev .w { display: block; font-weight: 500; }
+  .ev.work  { --c: var(--work);  --bg-c: var(--work-bg); }
+  .ev.uni   { --c: var(--uni);   --bg-c: var(--uni-bg); }
+  .ev.study { --c: var(--study); --bg-c: var(--study-bg); }
+  .ev.rest  { --c: var(--rest);  --bg-c: var(--rest-bg); }
+  .ev.note  { flex: 0 1 auto; background: transparent; border-inline-start-style: dashed; }
+  .ev.note .w { font-weight: 400; color: var(--muted); }
+
+  .today-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+    padding: clamp(16px, 3vw, 28px); margin-block-end: 16px;
+  }
+  .dates { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; color: var(--muted); font-size: .9rem; }
+  .clock { font-variant-numeric: tabular-nums; }
+  .school { margin: 18px 0 0; color: var(--muted); font-size: .9rem; }
+  .motto { margin: 2px 0 0; font-size: clamp(1.9rem, 6vw, 3rem); font-weight: 700; line-height: 1.25; }
+  .motto-sub { margin: 6px 0 0; font-size: 1.1rem; color: var(--muted); }
+  .quotes { margin-top: 18px; display: grid; gap: 12px; }
+  blockquote { margin: 0; padding-inline-start: 14px; border-inline-start: 3px solid var(--today); }
+  blockquote p { margin: 0; font-size: 1.05rem; }
+  blockquote cite { display: block; font-size: .85rem; font-style: normal; color: var(--muted); }
+  .status { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 10px; margin-top: 20px; }
+  .status > div { padding: 10px 14px; border-radius: 10px; background: var(--bg); }
+  .status b { display: block; font-size: .8rem; font-weight: 500; color: var(--muted); }
+  .ev.now { outline: 2px solid var(--c); outline-offset: 1px; }
+  .prayers { margin: 16px 0 0; }
+  .prayers h2 { margin: 0 0 12px; font-size: 1.1rem; }
+  .prayers .school { margin-top: 12px; }
+  .prayer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(110px, 1fr)); gap: 8px; }
+  .pr { text-align: center; padding: 10px 6px; border-radius: 10px; background: var(--bg); }
+  .pr b { display: block; font-weight: 500; font-size: .9rem; color: var(--muted); }
+  .pr span { display: block; font-size: 1.2rem; font-weight: 700; font-variant-numeric: tabular-nums; }
+  .pr.next { background: var(--today); color: var(--bg); }
+  .pr.next b { color: inherit; opacity: .8; }
+
+  @media (max-width: 640px) {
+    .day { grid-template-columns: 1fr; }
+    .day h2 {
+      flex-direction: row; align-items: center; justify-content: space-between;
+      padding: 10px 14px; border-inline-end: 0; border-block-end: 1px solid var(--line);
+    }
+    .ev { flex-basis: 100%; }
+    .ev.note { flex-basis: auto; }
+  }
+
+  @media print {
+    :root { color-scheme: light; }
+    body { background: #fff; padding: 0; }
+    .day { break-inside: avoid; }
+    .badge { display: none !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>جدولي الأسبوعي</h1>
+    <p>من الأحد إلى السبت</p>
+    <ul class="legend" aria-label="دليل الألوان">
+      <li><i style="background:var(--work)"></i>عمل</li>
+      <li><i style="background:var(--uni)"></i>جامعة</li>
+      <li><i style="background:var(--study)"></i>دراسة</li>
+      <li><i style="background:var(--rest)"></i>راحة</li>
+    </ul>
+  </header>
+
+  <section class="today-card" aria-live="polite">
+    <div class="dates"><span id="dates"></span><span class="clock" id="clock"></span></div>
+    <p class="school" id="school"></p>
+    <h2 class="motto" id="motto"></h2>
+    <p class="motto-sub" id="sub"></p>
+    <div class="quotes" id="quotes"></div>
+    <div class="status">
+      <div><b>الآن</b><span id="now">—</span></div>
+      <div><b>التالي</b><span id="next">—</span></div>
+      <div><b>جهّز لغد</b><span id="prep">—</span></div>
+    </div>
+  </section>
+
+  <div class="week">
+
+    <section class="day" data-day="0">
+      <h2>الأحد <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev work"><span class="t">من 10:00 ص إلى 4:00 م</span><span class="w">العمل في مكتب الشركة</span></div>
+        <div class="ev study"><span class="t">من 4:30 م إلى 9:00 م</span><span class="w">دراسة في مساحة ZINC</span></div>
+        <div class="ev rest"><span class="t">9:00 م</span><span class="w">العودة إلى المنزل والنوم مبكراً</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="1">
+      <h2>الإثنين <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev note"><span class="t">5:30 ص</span><span class="w">الاستيقاظ</span></div>
+        <div class="ev uni"><span class="t">من 6:25 ص إلى 2:00 م</span><span class="w">الجامعة (الخروج لباص الجامعة 6:25)</span></div>
+        <div class="ev rest"><span class="t">من 3:00 م إلى 5:00 م</span><span class="w">الوصول إلى المنزل وفترة راحة</span></div>
+        <div class="ev study"><span class="t">من 5:00 م حتى المساء</span><span class="w">دراسة في Study House (مشياً)</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="2">
+      <h2>الثلاثاء <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev work"><span class="t">من 10:00 ص إلى 4:00 م</span><span class="w">العمل في مكتب الشركة</span></div>
+        <div class="ev study"><span class="t">من 4:30 م إلى 9:00 م</span><span class="w">دراسة في مساحة ZINC</span></div>
+        <div class="ev rest"><span class="t">9:00 م</span><span class="w">العودة إلى المنزل والنوم مبكراً</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="3">
+      <h2>الأربعاء <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev note"><span class="t">5:30 ص</span><span class="w">الاستيقاظ</span></div>
+        <div class="ev uni"><span class="t">من 6:25 ص إلى 4:00 م</span><span class="w">الجامعة (الخروج لباص الجامعة 6:25)</span></div>
+        <div class="ev rest"><span class="t">من 5:00 م إلى 6:30 م</span><span class="w">الوصول إلى المنزل وفترة راحة</span></div>
+        <div class="ev study"><span class="t">من 6:30 م حتى المساء</span><span class="w">دراسة في Study House (مشياً)</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="4">
+      <h2>الخميس <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev note"><span class="t">11:00 ص</span><span class="w">الخروج مشياً</span></div>
+        <div class="ev study"><span class="t">من 11:15 ص حتى المساء</span><span class="w">دراسة وعمل عميق في Study House</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="5">
+      <h2>الجمعة <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev note"><span class="t">11:00 ص</span><span class="w">الخروج مشياً</span></div>
+        <div class="ev study"><span class="t">من 11:15 ص حتى المساء</span><span class="w">دراسة وعمل عميق في Study House</span></div>
+      </div>
+    </section>
+
+    <section class="day" data-day="6">
+      <h2>السبت <span class="badge">اليوم</span></h2>
+      <div class="events">
+        <div class="ev note"><span class="t">11:00 ص</span><span class="w">الخروج مشياً</span></div>
+        <div class="ev study"><span class="t">من 11:15 ص حتى المساء</span><span class="w">دراسة وعمل عميق في Study House</span></div>
+      </div>
+    </section>
+
+  </div>
+
+  <section class="today-card prayers">
+    <h2>مواقيت الصلاة في عمّان</h2>
+    <div class="prayer-grid" id="prayers"></div>
+    <p class="school" id="pr-note">جارٍ تحميل المواقيت…</p>
+  </section>
+</main>
+
+<script>
+  // تمييز يوم اليوم تلقائياً (0 = الأحد ... 6 = السبت)
+  var today = document.querySelector('.day[data-day="' + new Date().getDay() + '"]');
+  if (today) today.classList.add('today');
+
+  // ===== المحتوى اليومي (الترجمات بتصرف) =====
+  var D = [
+    { s: 'الرواقية', m: 'بداية البناء', u: 'انهض لتؤدي عمل إنسان، واعمل بما في يدك.',
+      q: [['في الصباح، إذا ثقل عليك النهوض، فقل لنفسك: أنهض لأؤدي عمل إنسان.', 'ماركوس أوريليوس، التأملات 5.1'],
+          ['بعض الأشياء بأيدينا وبعضها ليس بأيدينا.', 'إبكتيتوس، الدليل 1']],
+      p: 'غداً تستيقظ 5:30 ص. جهّز حقيبة الجامعة قبل النوم.' },
+    { s: 'السقراطية', m: 'سعي المعرفة', u: 'من أروقة الجامعة إلى عزلة التركيز.',
+      q: [['الحياة التي لا تُفحص لا تستحق أن تُعاش.', 'سقراط، في «دفاع سقراط» لأفلاطون'],
+          ['ما لا أعلمه لا أظن أني أعلمه.', 'سقراط، في «دفاع سقراط» لأفلاطون']],
+      p: 'غداً العمل من 10:00 ص. نم مبكراً ولو بنصف ساعة.' },
+    { s: 'المشائية (أرسطو)', m: 'استدامة الأثر', u: 'ثبات الخطى في طريق الإتقان.',
+      q: [['نصير عادلين بفعل الأفعال العادلة، وشجعاناً بفعل الأفعال الشجاعة.', 'أرسطو، الأخلاق النيقوماخية'],
+          ['الناس جميعاً يرغبون بطبعهم في المعرفة.', 'أرسطو، الميتافيزيقا']],
+      p: 'غداً تستيقظ 5:30 ص. جهّز حقيبتك وملابسك الليلة.' },
+    { s: 'العبثية (ألبير كامو)', m: 'ذروة الجهد', u: 'الصعود نفسه يكفي ليملأ القلب.',
+      q: [['النضال نحو القمم وحده يكفي لملء قلب إنسان. يجب أن نتخيل سيزيف سعيداً.', 'ألبير كامو، أسطورة سيزيف'],
+          ['في عمق الشتاء، وجدت في داخلي صيفاً لا يُقهر.', 'ألبير كامو، «العودة إلى تيباسا»']],
+      p: 'غداً الخميس: يوم دراسة عميقة. اختر هدفاً واحداً له.' },
+    { s: 'التعالية (ثورو)', m: 'الانغماس العميق', u: 'هدوء العزلة لتشكيل الأفكار.',
+      q: [['ذهبت إلى الغابة لأني أردت أن أعيش بتأنٍّ وقصد.', 'هنري ديفيد ثورو، والدن'],
+          ['لم أجد رفيقاً أحبّ إلى النفس من العزلة.', 'هنري ديفيد ثورو، والدن']],
+      p: 'غداً الجمعة: حدّد مهمتك الرئيسية قبل أن تبدأ.' },
+    { s: 'الفلسفة الإسلامية', m: 'بركة السعي', u: 'تجديد النية وطلب الحق من أي مصدر.',
+      q: [['لا ينبغي أن نستحيي من استحسان الحق واقتنائه من أين أتى، وإن أتى من أمم بعيدة عنا.', 'الكندي، في الفلسفة الأولى'],
+          ['الحق لا يضادّ الحق، بل يوافقه ويشهد له.', 'ابن رشد، فصل المقال']],
+      p: 'غداً السبت: اترك جزءاً من المساء للراحة.' },
+    { s: 'الأبيقورية', m: 'حصاد التفرغ', u: 'ما بين يديك اليوم كان أمنية بالأمس.',
+      q: [['لا تُفسد ما عندك برغبتك فيما ليس عندك؛ وتذكّر أن ما عندك الآن كان يوماً مما تمنيته.', 'إبيقور، الأقوال الفاتيكانية 35'],
+          ['لا شيء يكفي من يرى القليل قليلاً.', 'إبيقور، الأقوال الفاتيكانية 68']],
+      p: 'غداً الأحد يوم عمل طويل. جهّز ملابسك وغداءك الليلة.' }
+  ];
+
+  var $ = function (id) { return document.getElementById(id); };
+  var t0 = new Date(), dow = t0.getDay(), d = D[dow], times = null;
+  function el(tag, txt) { var e = document.createElement(tag); e.textContent = txt; return e; }
+  function fmtD(o, cal) {
+    try { return new Intl.DateTimeFormat('ar-u-' + (cal ? 'ca-islamic-umalqura-' : '') + 'nu-latn', o).format(t0); } catch (e) { return ''; }
+  }
+  function dur(x) {
+    var s = ((x >= 60 ? Math.floor(x / 60) + ' س ' : '') + (x % 60 ? x % 60 + ' د' : '')).trim();
+    return s || 'أقل من دقيقة';
+  }
+
+  $('dates').textContent = fmtD({ weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) +
+    ' • ' + fmtD({ day: 'numeric', month: 'long', year: 'numeric' }, true);
+  $('school').textContent = 'مدرسة اليوم: ' + d.s;
+  $('motto').textContent = d.m;
+  $('sub').textContent = d.u;
+  $('prep').textContent = d.p;
+  d.q.forEach(function (q) {
+    var b = document.createElement('blockquote');
+    b.appendChild(el('p', '“' + q[0] + '”'));
+    b.appendChild(el('cite', q[1]));
+    $('quotes').appendChild(b);
+  });
+
+  // قراءة أوقات الأحداث من نصوص البطاقات نفسها، فلا حاجة لتكرارها
+  function mins(h, m, ap) { return (+h % 12 + (ap === 'م' ? 12 : 0)) * 60 + +m; }
+  var evs = [].map.call(document.querySelectorAll('.day[data-day="' + dow + '"] .ev'), function (e) {
+    var t = e.querySelector('.t').textContent, r = /(\d+):(\d+)\s*(ص|م)/g, a = [], m;
+    while ((m = r.exec(t))) a.push(mins(m[1], m[2], m[3]));
+    return { el: e, s: a[0], e: a[1], open: /المساء/.test(t), name: e.querySelector('.w').textContent };
+  });
+  evs.forEach(function (v, i) {
+    if (v.e == null) v.e = v.open ? 23 * 60 : (evs[i + 1] ? evs[i + 1].s : 24 * 60);
+  });
+
+  // ===== مواقيت الصلاة (عمّان، طريقة وزارة الأوقاف الأردنية) =====
+  var NAMES = [['Fajr', 'الفجر'], ['Sunrise', 'الشروق'], ['Dhuhr', dow === 5 ? 'الجمعة' : 'الظهر'],
+               ['Asr', 'العصر'], ['Maghrib', 'المغرب'], ['Isha', 'العشاء']];
+  var METHOD = 23;
+  function show12(h, m) { return (h % 12 || 12) + ':' + (m < 10 ? '0' : '') + m + (h >= 12 ? ' م' : ' ص'); }
+  function useMonth(arr) {
+    var t = arr[t0.getDate() - 1] && arr[t0.getDate() - 1].timings;
+    if (!t) return;
+    times = NAMES.map(function (n) {
+      var p = t[n[0]].slice(0, 5).split(':');
+      return { n: n[1], m: +p[0] * 60 + +p[1], t: show12(+p[0], +p[1]) };
+    });
+    tick();
+  }
+  function loadPrayers() {
+    var y = t0.getFullYear(), mo = t0.getMonth() + 1, key = 'pt-' + METHOD + '-' + y + '-' + mo;
+    try { var c = JSON.parse(localStorage.getItem(key)); if (c) useMonth(c); } catch (e) {}
+    if (times) return;
+    fetch('https://api.aladhan.com/v1/calendarByCity/' + y + '/' + mo + '?city=Amman&country=Jordan&method=' + METHOD)
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        var arr = j.data.map(function (x) { return { timings: x.timings }; });
+        try { localStorage.setItem(key, JSON.stringify(arr)); } catch (e) {}
+        useMonth(arr);
+      })
+      .catch(function () { $('pr-note').textContent = 'تعذّر تحميل المواقيت. افتح الصفحة متصلاً بالإنترنت مرة واحدة هذا الشهر.'; });
+  }
+  function renderPrayers(c) {
+    if (!times) return;
+    var nx = -1, box = $('prayers');
+    times.some(function (x, k) { if (x.m > c) { nx = k; return true; } });
+    box.textContent = '';
+    times.forEach(function (x, k) {
+      var p = document.createElement('div');
+      p.className = 'pr' + (k === nx ? ' next' : '');
+      p.appendChild(el('b', x.n));
+      p.appendChild(el('span', x.t));
+      box.appendChild(p);
+    });
+    $('pr-note').textContent = nx > -1 ? 'القادم: ' + times[nx].n + ' بعد ' + dur(times[nx].m - c) : 'انتهت مواقيت اليوم. الفجر غداً.';
+  }
+
+  // ===== التحديث المباشر =====
+  function tick() {
+    var n = new Date(), c = n.getHours() * 60 + n.getMinutes();
+    $('clock').textContent = n.toLocaleTimeString('ar-u-nu-latn', { hour: 'numeric', minute: '2-digit' });
+    var cur = evs.filter(function (v) { return c >= v.s && c < v.e; })[0];
+    var nxt = evs.filter(function (v) { return v.s > c; })[0];
+    evs.forEach(function (v) { v.el.classList.toggle('now', v === cur); });
+    $('now').textContent = cur ? cur.name + ' (متبقٍ ' + dur(cur.e - c) + ')' : 'لا شيء مجدول الآن';
+    $('next').textContent = nxt ? nxt.name + ' (بعد ' + dur(nxt.s - c) + ')' : 'انتهى جدول اليوم';
+    renderPrayers(c);
+  }
+  tick();
+  loadPrayers();
+  setInterval(tick, 20000);
+</script>
+</body>
+</html>
